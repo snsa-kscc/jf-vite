@@ -1,23 +1,33 @@
 <?php
 /**
  * Simple WordPress Integration for Vite React App
- * Add this to your theme's functions.php
  */
 
-// Path to your React app files in WordPress
-// Change this if you put your files in a different location
 define('VITE_APP_PATH', get_stylesheet_directory_uri() . '/vite-app/assets/');
+
+/**
+ * Add modulepreload for App.js in the head
+ */
+function vite_add_modulepreload() {
+    echo '<link rel="modulepreload" crossorigin href="' . VITE_APP_PATH . 'App.js">';
+}
+add_action('wp_head', 'vite_add_modulepreload');
 
 /**
  * Add the CSS file and shared App.js file
  */
 function vite_enqueue_common_assets() {
-    // Add CSS
     wp_enqueue_style('vite-app-css', VITE_APP_PATH . 'style.css');
     
-    // Add the shared App.js file that contains most of the code
-    // This is needed because the page JS files import from it
     wp_enqueue_script('vite-app-js', VITE_APP_PATH . 'App.js', [], null, true);
+    
+    // Add script type="module" attribute to App.js
+    add_filter('script_loader_tag', function($tag, $handle) {
+        if ('vite-app-js' !== $handle) {
+            return $tag;
+        }
+        return str_replace(' src', ' type="module" crossorigin src', $tag);
+    }, 10, 2);
 }
 
 /**
@@ -25,13 +35,17 @@ function vite_enqueue_common_assets() {
  * Usage: [vite_stores]
  */
 function vite_stores_shortcode() {
-    // Add common assets
     vite_enqueue_common_assets();
     
-    // Add the page-specific JavaScript file
     wp_enqueue_script('vite-stores-js', VITE_APP_PATH . 'stores.js', ['vite-app-js'], null, true);
     
-    // Return the HTML container
+    add_filter('script_loader_tag', function($tag, $handle) {
+        if ('vite-stores-js' !== $handle) {
+            return $tag;
+        }
+        return str_replace(' src', ' type="module" crossorigin src', $tag);
+    }, 10, 2);
+    
     return '
     <div class="vite-app stores-app">
         <div id="stores-root"></div>
@@ -44,13 +58,17 @@ add_shortcode('vite_stores', 'vite_stores_shortcode');
  * Usage: [vite_quiz]
  */
 function vite_quiz_shortcode() {
-    // Add common assets
     vite_enqueue_common_assets();
     
-    // Add the page-specific JavaScript file
     wp_enqueue_script('vite-quiz-js', VITE_APP_PATH . 'quiz.js', ['vite-app-js'], null, true);
     
-    // Return the HTML container
+    add_filter('script_loader_tag', function($tag, $handle) {
+        if ('vite-quiz-js' !== $handle) {
+            return $tag;
+        }
+        return str_replace(' src', ' type="module" crossorigin src', $tag);
+    }, 10, 2);
+    
     return '
     <div class="vite-app quiz-app">
         <div id="quiz-root"></div>
@@ -71,13 +89,17 @@ function vite_app_shortcode($atts) {
     
     $page = $atts['page'];
     
-    // Add common assets
     vite_enqueue_common_assets();
     
-    // Add the page-specific JavaScript file
     wp_enqueue_script('vite-' . $page . '-js', VITE_APP_PATH . $page . '.js', ['vite-app-js'], null, true);
     
-    // Return the HTML container
+    add_filter('script_loader_tag', function($tag, $handle) use ($page) {
+        if ('vite-' . $page . '-js' !== $handle) {
+            return $tag;
+        }
+        return str_replace(' src', ' type="module" crossorigin src', $tag);
+    }, 10, 2);
+    
     return '
     <div class="vite-app ' . $page . '-app">
         <div id="' . $page . '-root"></div>
