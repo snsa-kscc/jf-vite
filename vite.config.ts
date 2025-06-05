@@ -13,10 +13,22 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
+        index: path.resolve(__dirname, "index.html"),
         stores: path.resolve(__dirname, "stores.html"),
         quiz: path.resolve(__dirname, "quiz.html"),
       },
+      output: {
+        // Prevent hashing in output filenames
+        entryFileNames: "assets/[name].js",
+        chunkFileNames: "assets/[name].js",
+        assetFileNames: "assets/[name].[ext]",
+      },
+      // This is the key to prevent code splitting
+      preserveEntrySignatures: false,
     },
-    outDir: "dist",
+    outDir: "dist", // Use a single CSS file
+    cssCodeSplit: false,
+    // Minify the output
+    minify: true,
   },
 });

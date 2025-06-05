@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test React Islands</title>
+  <link rel="stylesheet" href="./dist/assets/style.css">
+</head>
+<body>
+  <h1>Testing React Islands</h1>
+  
+  <h2>Stores App</h2>
+  <div class="vite-app stores-app">
+    <div id="stores-root"></div>
+  </div>
+  
+  <hr style="margin: 40px 0;">
+  
+  <h2>Quiz App</h2>
+  <div class="vite-app quiz-app">
+    <div id="quiz-root"></div>
+  </div>
+
+  <!-- Load the shared code first -->
+  <script src="./dist/assets/App.js"></script>
+  
+  <!-- Then load the page-specific code -->
+  <script src="./dist/assets/stores.js"></script>
+  <script src="./dist/assets/quiz.js"></script>
+</body>
+</html>
