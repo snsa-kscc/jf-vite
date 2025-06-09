@@ -34,6 +34,20 @@ def clean_json(input_file, output_file=None):
     cleaned_data = []
     for item in data:
         cleaned_item = {k: v for k, v in item.items() if k not in fields_to_remove}
+
+        # Process 'open_hours' field
+        if 'open_hours' in cleaned_item and isinstance(cleaned_item['open_hours'], str):
+            try:
+                open_hours_data = json.loads(cleaned_item['open_hours'])
+                if isinstance(open_hours_data, dict):
+                    for day, hours in open_hours_data.items():
+                        if isinstance(hours, list) and len(hours) > 0:
+                            open_hours_data[day] = hours[0]
+                    cleaned_item['open_hours'] = json.dumps(open_hours_data) # Ensure it's stored as a string again
+            except json.JSONDecodeError:
+                # If 'open_hours' is not a valid JSON string, leave it as is or log an error
+                pass # Or print(f"Warning: Could not parse open_hours for an item: {cleaned_item.get('name', 'N/A')}")
+
         cleaned_data.append(cleaned_item)
     
     # Write the cleaned data to the output file
@@ -48,5 +62,5 @@ def clean_json(input_file, output_file=None):
     return output_file
 
 if __name__ == "__main__":
-    input_file = "/home/snsa/Desktop/vite/data.json"
+    input_file = "/home/snsa/Desktop/vite/preprocessing/data.json"
     clean_json(input_file)
